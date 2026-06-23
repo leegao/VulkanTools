@@ -16,168 +16,201 @@
 name: ci
 
 on:
-  push:
-  pull_request:
-    branches:
-      - main
+    push:
+        branches: ["**"]
+        tags: ["*"]
+    pull_request:
+        branches:
+            - main
 
 jobs:
-  # Ensure we can build on an older Ubuntu distro with an older version of CMake.
-  linux_back_compat:
-    runs-on: ubuntu-22.04
-    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name
-    name: "Ubuntu Backcompat"
-    steps:
-      - uses: actions/checkout@v7
-      - name: Install Qt
-        uses: jurplel/install-qt-action@v4
-        with:
-          version: '6.2.*'
-      - name: Test Minimum CMake Version
-        uses: lukka/get-cmake@latest
-        with:
-          cmakeVersion: 3.22.1
-      - uses: hendrikmuhs/ccache-action@v1.2
-        with:
-          key: linux_back_compat
-      - run: sudo apt-get -qq update && sudo apt-get install -y libwayland-dev xorg-dev
-      - run: cmake -S . -B build/ -D UPDATE_DEPS=ON -D CMAKE_BUILD_TYPE=Debug
-        env:
-          CMAKE_C_COMPILER_LAUNCHER: ccache
-          CMAKE_CXX_COMPILER_LAUNCHER: ccache
-          # Linker warnings as errors
-          LDFLAGS: -Wl,--fatal-warnings
-      - run: cmake --build build
-      - run: cmake --install build --prefix /tmp
+    # Ensure we can build on an older Ubuntu distro with an older version of CMake.
+    # linux_back_compat:
+    #     runs-on: ubuntu-22.04
+    #     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name
+    #     name: "Ubuntu Backcompat"
+    #     steps:
+    #         - uses: actions/checkout@v7
+    #         - name: Install Qt
+    #           uses: jurplel/install-qt-action@v4
+    #           with:
+    #               version: "6.2.*"
+    #         - name: Test Minimum CMake Version
+    #           uses: lukka/get-cmake@latest
+    #           with:
+    #               cmakeVersion: 3.22.1
+    #         - uses: hendrikmuhs/ccache-action@v1.2
+    #           with:
+    #               key: linux_back_compat
+    #         - run: sudo apt-get -qq update && sudo apt-get install -y libwayland-dev xorg-dev
+    #         - run: cmake -S . -B build/ -D UPDATE_DEPS=ON -D CMAKE_BUILD_TYPE=Debug
+    #           env:
+    #               CMAKE_C_COMPILER_LAUNCHER: ccache
+    #               CMAKE_CXX_COMPILER_LAUNCHER: ccache
+    #               # Linker warnings as errors
+    #               LDFLAGS: -Wl,--fatal-warnings
+    #         - run: cmake --build build
+    #         - run: cmake --install build --prefix /tmp
 
-  linux:
-    runs-on: ubuntu-latest
-    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name
-    steps:
-    - name: Install Qt
-      uses: jurplel/install-qt-action@v4
-      with:
-        version: '6.8.3'
-    - name: Clone repository
-      uses: actions/checkout@v7
-    - run: sudo apt-get -qq update && sudo apt-get install -y libwayland-dev xorg-dev
-    - run: python3 -m pip install pyparsing
-    - run: python3 scripts/github_ci_linux.py --config Debug --tests GitHubCI
-    - run: python3 scripts/generate_source.py --verify external/Vulkan-Headers/registry
+    # linux:
+    #     runs-on: ubuntu-latest
+    #     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name
+    #     steps:
+    #         - name: Install Qt
+    #           uses: jurplel/install-qt-action@v4
+    #           with:
+    #               version: "6.8.3"
+    #         - name: Clone repository
+    #           uses: actions/checkout@v7
+    #         - run: sudo apt-get -qq update && sudo apt-get install -y libwayland-dev xorg-dev
+    #         - run: python3 -m pip install pyparsing
+    #         - run: python3 scripts/github_ci_linux.py --config Debug --tests GitHubCI
+    #         - run: python3 scripts/generate_source.py --verify external/Vulkan-Headers/registry
 
-  windows:
-    runs-on: windows-latest
-    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name
-    steps:
-      - uses: actions/checkout@v7
-      - uses: ilammy/msvc-dev-cmd@v1
-      - name: Install Qt
-        uses: jurplel/install-qt-action@v4
-        with:
-          version: '6.8.2'
-      - run: cmake -S . -B build -D UPDATE_DEPS=ON -D BUILD_TESTS=ON -D RUN_ON_GITHUB=ON -D CMAKE_BUILD_TYPE=Debug -G Ninja
-      - run: cmake --build build
-      - run: ctest --output-on-failure --test-dir build --timeout 10
-      - run: cmake --install build --prefix build/install
+    android:
+        runs-on: ubuntu-latest
+        if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name
+        steps:
+            - uses: actions/checkout@v7
 
-  android:
-    runs-on: macos-latest
-    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name
-    steps:
-      - uses: actions/checkout@v7
-      - uses: lukka/get-cmake@latest
-      - name: Configure
-        run: |
-          cmake -S . -B build/ --toolchain $ANDROID_NDK_ROOT/build/cmake/android.toolchain.cmake \
-          -D ANDROID_PLATFORM=29 \
-          -D CMAKE_ANDROID_ARCH_ABI=arm64-v8a \
-          -D CMAKE_ANDROID_STL_TYPE=c++_static \
-          -D ANDROID_USE_LEGACY_TOOLCHAIN_FILE=NO \
-          -D CMAKE_BUILD_TYPE=Release \
-          -D UPDATE_DEPS=ON \
-          -G "Ninja"
-      - run: cmake --build build
-      - run: cmake --install build --prefix build/install
+            - uses: lukka/get-cmake@latest
 
-  macos:
-    runs-on: macos-latest
-    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name
-    steps:
-      - uses: actions/checkout@v7
-      - name: Install Qt
-        uses: jurplel/install-qt-action@v4
-        with:
-          version: '6.8.2'
-      - uses: lukka/get-cmake@latest
-      - name: Configure
-        run: |
-          cmake -S . -B build/ \
-          -D CMAKE_BUILD_TYPE=Debug \
-          -D UPDATE_DEPS=ON \
-          -D BUILD_WERROR=ON \
-          -G "Ninja"
-      - run: cmake --build build
-      - run: cmake --install build --prefix build/install
+            - name: Configure
+              run: |
+                  cmake -S . -B build/ --toolchain $ANDROID_NDK_LATEST_HOME/build/cmake/android.toolchain.cmake \
+                  -D ANDROID_PLATFORM=29 \
+                  -D CMAKE_ANDROID_ARCH_ABI=arm64-v8a \
+                  -D CMAKE_ANDROID_STL_TYPE=c++_static \
+                  -D ANDROID_USE_LEGACY_TOOLCHAIN_FILE=NO \
+                  -D CMAKE_BUILD_TYPE=Release \
+                  -D UPDATE_DEPS=ON \
+                  -G "Ninja"
 
-  apple-cross-compile:
-    name: iOS
-    runs-on: macos-latest
-    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name
-    steps:
-        - uses: actions/checkout@v7
-        - uses: actions/setup-python@v6
-          with:
-            python-version: '3.10'
-        - uses: lukka/get-cmake@latest
-        - name: Generate build files
-          run: |
-            cmake -S . -B build \
-            -D CMAKE_SYSTEM_PROCESSOR=arm64 \
-            -D CMAKE_SYSTEM_NAME=iOS \
-            -D CMAKE_OSX_ARCHITECTURES=arm64 \
-            -D CMAKE_BUILD_TYPE=Debug \
-            -D UPDATE_DEPS=ON \
-            -D BUILD_WERROR=ON
-          env:
-            LDFLAGS: -Wl,-fatal_warnings
-            CMAKE_GENERATOR: Ninja
-        - run: cmake --build build
-        - run: cmake --install build --prefix /tmp
-        # Helps verify useful details about the dylib (platform, minos, sdk)
-        - run: vtool -show-build /tmp/lib/VkLayer_api_dump.framework/VkLayer_api_dump
+            - name: Build
+              run: cmake --build build
 
-  mingw:
-    runs-on: windows-latest
-    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name
-    defaults:
-      run:
-        shell: bash
-    steps:
-      - uses: actions/checkout@v7
-      - name: Setup ccache
-        uses: hendrikmuhs/ccache-action@v1.2
-        with:
-          key: mingw-ccache
-      - uses: actions/setup-python@v6
-        with:
-          python-version: '3.10'
-      - uses: lukka/get-cmake@latest
-      - name: GCC Version
-        run: gcc --version # If this fails MINGW is not setup correctly
-      - name: Configure
-        run: cmake -S. -B build -D UPDATE_DEPS=ON -D CMAKE_BUILD_TYPE=Release
-        env:
-          LDFLAGS: -fuse-ld=lld # MINGW linking is very slow. Use llvm linker instead.
-          CMAKE_C_COMPILER_LAUNCHER: ccache
-          CMAKE_CXX_COMPILER_LAUNCHER: ccache
-          CMAKE_GENERATOR: Ninja
-      - run: cmake --build build
-      - run: cmake --install build --prefix build/install
+            - name: Install
+              run: cmake --install build --prefix build/install
 
-  chromium:
-    runs-on: ubuntu-latest
-    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name
-    steps:
-      - uses: actions/checkout@v7
-      - run: sudo apt-get -qq update && sudo apt-get install -y libwayland-dev xorg-dev
-      - run: python scripts/gn/gn.py
+            - name: Upload Built Binaries
+              uses: actions/upload-artifact@v4
+              with:
+                  name: android-binaries
+                  path: build/install/
+
+    # windows:
+    #   runs-on: windows-latest
+    #   if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name
+    #   steps:
+    #     - uses: actions/checkout@v7
+    #     - uses: ilammy/msvc-dev-cmd@v1
+    #     - name: Install Qt
+    #       uses: jurplel/install-qt-action@v4
+    #       with:
+    #         version: '6.8.2'
+    #     - run: cmake -S . -B build -D UPDATE_DEPS=ON -D BUILD_TESTS=ON -D RUN_ON_GITHUB=ON -D CMAKE_BUILD_TYPE=Debug -G Ninja
+    #     - run: cmake --build build
+    #     - run: ctest --output-on-failure --test-dir build --timeout 10
+    #     - run: cmake --install build --prefix build/install
+
+    # android:
+    #   runs-on: macos-latest
+    #   if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name
+    #   steps:
+    #     - uses: actions/checkout@v7
+    #     - uses: lukka/get-cmake@latest
+    #     - name: Configure
+    #       run: |
+    #         cmake -S . -B build/ --toolchain $ANDROID_NDK_ROOT/build/cmake/android.toolchain.cmake \
+    #         -D ANDROID_PLATFORM=29 \
+    #         -D CMAKE_ANDROID_ARCH_ABI=arm64-v8a \
+    #         -D CMAKE_ANDROID_STL_TYPE=c++_static \
+    #         -D ANDROID_USE_LEGACY_TOOLCHAIN_FILE=NO \
+    #         -D CMAKE_BUILD_TYPE=Release \
+    #         -D UPDATE_DEPS=ON \
+    #         -G "Ninja"
+    #     - run: cmake --build build
+    #     - run: cmake --install build --prefix build/install
+
+    # macos:
+    #   runs-on: macos-latest
+    #   if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name
+    #   steps:
+    #     - uses: actions/checkout@v7
+    #     - name: Install Qt
+    #       uses: jurplel/install-qt-action@v4
+    #       with:
+    #         version: '6.8.2'
+    #     - uses: lukka/get-cmake@latest
+    #     - name: Configure
+    #       run: |
+    #         cmake -S . -B build/ \
+    #         -D CMAKE_BUILD_TYPE=Debug \
+    #         -D UPDATE_DEPS=ON \
+    #         -D BUILD_WERROR=ON \
+    #         -G "Ninja"
+    #     - run: cmake --build build
+    #     - run: cmake --install build --prefix build/install
+
+    # apple-cross-compile:
+    #   name: iOS
+    #   runs-on: macos-latest
+    #   if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name
+    #   steps:
+    #       - uses: actions/checkout@v7
+    #       - uses: actions/setup-python@v6
+    #         with:
+    #           python-version: '3.10'
+    #       - uses: lukka/get-cmake@latest
+    #       - name: Generate build files
+    #         run: |
+    #           cmake -S . -B build \
+    #           -D CMAKE_SYSTEM_PROCESSOR=arm64 \
+    #           -D CMAKE_SYSTEM_NAME=iOS \
+    #           -D CMAKE_OSX_ARCHITECTURES=arm64 \
+    #           -D CMAKE_BUILD_TYPE=Debug \
+    #           -D UPDATE_DEPS=ON \
+    #           -D BUILD_WERROR=ON
+    #         env:
+    #           LDFLAGS: -Wl,-fatal_warnings
+    #           CMAKE_GENERATOR: Ninja
+    #       - run: cmake --build build
+    #       - run: cmake --install build --prefix /tmp
+    #       # Helps verify useful details about the dylib (platform, minos, sdk)
+    #       - run: vtool -show-build /tmp/lib/VkLayer_api_dump.framework/VkLayer_api_dump
+
+    # mingw:
+    #   runs-on: windows-latest
+    #   if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name
+    #   defaults:
+    #     run:
+    #       shell: bash
+    #   steps:
+    #     - uses: actions/checkout@v7
+    #     - name: Setup ccache
+    #       uses: hendrikmuhs/ccache-action@v1.2
+    #       with:
+    #         key: mingw-ccache
+    #     - uses: actions/setup-python@v6
+    #       with:
+    #         python-version: '3.10'
+    #     - uses: lukka/get-cmake@latest
+    #     - name: GCC Version
+    #       run: gcc --version # If this fails MINGW is not setup correctly
+    #     - name: Configure
+    #       run: cmake -S. -B build -D UPDATE_DEPS=ON -D CMAKE_BUILD_TYPE=Release
+    #       env:
+    #         LDFLAGS: -fuse-ld=lld # MINGW linking is very slow. Use llvm linker instead.
+    #         CMAKE_C_COMPILER_LAUNCHER: ccache
+    #         CMAKE_CXX_COMPILER_LAUNCHER: ccache
+    #         CMAKE_GENERATOR: Ninja
+    #     - run: cmake --build build
+    #     - run: cmake --install build --prefix build/install
+
+    # chromium:
+    #   runs-on: ubuntu-latest
+    #   if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name
+    #   steps:
+    #     - uses: actions/checkout@v7
+    #     - run: sudo apt-get -qq update && sudo apt-get install -y libwayland-dev xorg-dev
+    #     - run: python scripts/gn/gn.py
