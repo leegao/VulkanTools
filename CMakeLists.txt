@@ -28,7 +28,7 @@ find_package(valijson REQUIRED CONFIG)
 
 find_package(Qt6 COMPONENTS Core Gui Widgets Network QUIET)
 if(Qt6_FOUND)
-  get_target_property(QT_TARGET_TYPE Qt6::Core TYPE)
+    get_target_property(QT_TARGET_TYPE Qt6::Core TYPE)
 endif()
 
 set(CMAKE_CXX_STANDARD 17)
@@ -101,7 +101,7 @@ elseif(ANDROID)
     # - libVkLayer_api_dump.so
     # - libVkLayer_screenshot.so
     option(BUILD_APIDUMP "Build api_dump layer" ON)
-    option(BUILD_SCREENSHOT "Build screenshot layer" ON)
+    # option(BUILD_SCREENSHOT "Build screenshot layer" ON)
     set(BUILD_MONITOR OFF)
     set(BUILD_LAYERMGR OFF)
 
@@ -133,7 +133,7 @@ if(BUILD_LAYERMGR)
         if(Qt6_VERSION VERSION_LESS 6.9)
             message("WARNING: Qt 6.9 or newer is required to build Vulkan Configurator but the found version was Qt " ${Qt6_VERSION})
         endif()
-        
+
         message(STATUS "INFO: Building Vulkan Configurator")
 
         if (WIN32)
