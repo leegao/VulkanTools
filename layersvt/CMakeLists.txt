@@ -144,10 +144,10 @@ foreach(layer ${TOOL_LAYERS})
         # IOS and APPLE can both be true (FYI)
         if(IOS)
             set_target_properties(${layer} PROPERTIES
-		FRAMEWORK			TRUE
+  FRAMEWORK			TRUE
                 MACOSX_FRAMEWORK_BUNDLE_VERSION "${VulkanHeaders_VERSION}"
                 MACOSX_FRAMEWORK_SHORT_VERSION_STRING "${VulkanHeaders_VERSION}"
-		MACOSX_FRAMEWORK_IDENTIFIER 	com.khronos.${layer}
+  MACOSX_FRAMEWORK_IDENTIFIER 	com.khronos.${layer}
             )
         else()
             set_target_properties(${layer} PROPERTIES SUFFIX ".dylib")

@@ -9,12 +9,7 @@
         "description": "LunarG API dump layer",
         "introduction": "The API Dump utility layer prints API calls, parameters, and values to the identified output stream.",
         "url": "https://vulkan.lunarg.com/doc/sdk/latest/windows/api_dump_layer.html",
-        "platforms": [
-            "WINDOWS",
-            "LINUX",
-            "MACOS",
-            "ANDROID"
-        ],
+        "platforms": ["WINDOWS", "LINUX", "MACOS", "ANDROID"],
         "instance_extensions": [
             {
                 "name": "VK_EXT_layer_settings",
@@ -25,9 +20,7 @@
             {
                 "name": "VK_EXT_tooling_info",
                 "spec_version": "1",
-                "entrypoints": [
-                    "vkGetPhysicalDeviceToolPropertiesEXT"
-                ]
+                "entrypoints": ["vkGetPhysicalDeviceToolPropertiesEXT"]
             }
         ],
         "features": {
@@ -35,12 +28,7 @@
                 {
                     "label": "Console Output",
                     "description": "Output API dump to stdout",
-                    "platforms": [
-                        "WINDOWS",
-                        "LINUX",
-                        "MACOS",
-                        "ANDROID"
-                    ],
+                    "platforms": ["WINDOWS", "LINUX", "MACOS", "ANDROID"],
                     "status": "STABLE",
                     "settings": [
                         {
@@ -60,12 +48,7 @@
                 {
                     "label": "Text Output",
                     "description": "Output API dump to a text file",
-                    "platforms": [
-                        "WINDOWS",
-                        "LINUX",
-                        "MACOS",
-                        "ANDROID"
-                    ],
+                    "platforms": ["WINDOWS", "LINUX", "MACOS", "ANDROID"],
                     "status": "STABLE",
                     "settings": [
                         {
@@ -85,12 +68,7 @@
                 {
                     "label": "HTML Output",
                     "description": "Output API dump to a HTML file",
-                    "platforms": [
-                        "WINDOWS",
-                        "LINUX",
-                        "MACOS",
-                        "ANDROID"
-                    ],
+                    "platforms": ["WINDOWS", "LINUX", "MACOS", "ANDROID"],
                     "status": "STABLE",
                     "settings": [
                         {
@@ -110,12 +88,7 @@
                 {
                     "label": "JSON Output",
                     "description": "Output API dump to a JSON file",
-                    "platforms": [
-                        "WINDOWS",
-                        "LINUX",
-                        "MACOS",
-                        "ANDROID"
-                    ],
+                    "platforms": ["WINDOWS", "LINUX", "MACOS", "ANDROID"],
                     "status": "STABLE",
                     "settings": [
                         {
