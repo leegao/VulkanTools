@@ -312,75 +312,76 @@ static const char *GetDefaultPrefix() {
 
 class ApiDumpSettings {
    public:
-    ApiDumpSettings() : output_stream(std::cout.rdbuf()) {
+    ApiDumpSettings() : output_stream(std::cerr) {
+        std::cerr << "[APIDUMP] HELLO WORLD\n";
     }
 
     ~ApiDumpSettings() {
-        if (output_format == ApiDumpFormat::Html) {
-            // Close off html
-            output_stream << "</details></div></body></html>";
-        } else if (output_format == ApiDumpFormat::Json) {
-            // Close off json
-            output_stream << "\n]" << std::endl;
-        }
+        // if (output_format == ApiDumpFormat::Html) {
+        //     // Close off html
+        //     output_stream << "</details></div></body></html>";
+        // } else if (output_format == ApiDumpFormat::Json) {
+        //     // Close off json
+        //     output_stream << "\n]" << std::endl;
+        // }
     }
 
     void setupInterFrameOutputFormatting(uint64_t frame_count) const /*name change? */
     {
         static bool hasPrintedAFrame = false;
-        switch (format()) {
-            case (ApiDumpFormat::Html):
-                if (frame_count > 0) {
-                    if (condFrameOutput.isFrameInRange(frame_count - 1)) output_stream << "</details>";
-                }
-                if (condFrameOutput.isFrameInRange(frame_count)) {
-                    output_stream << "<details class='frm'><summary>Frame ";
-                    if (show_thread_and_frame) {
-                        output_stream << frame_count;
-                    }
-                    output_stream << "</summary>";
-                }
-                break;
+        // switch (format()) {
+        //     case (ApiDumpFormat::Html):
+        //         if (frame_count > 0) {
+        //             if (condFrameOutput.isFrameInRange(frame_count - 1)) output_stream << "</details>";
+        //         }
+        //         if (condFrameOutput.isFrameInRange(frame_count)) {
+        //             output_stream << "<details class='frm'><summary>Frame ";
+        //             if (show_thread_and_frame) {
+        //                 output_stream << frame_count;
+        //             }
+        //             output_stream << "</summary>";
+        //         }
+        //         break;
 
-            case (ApiDumpFormat::Json):
+        //     case (ApiDumpFormat::Json):
 
-                if (frame_count > 0) {
-                    if (condFrameOutput.isFrameInRange(frame_count - 1)) output_stream << "\n" << indentation(1) << "]\n}";
-                }
-                if (condFrameOutput.isFrameInRange(frame_count)) {
-                    if (!hasPrintedAFrame) {
-                        hasPrintedAFrame = true;
-                    } else {
-                        output_stream << ",\n";
-                    }
-                    output_stream << "{\n";
-                    if (show_thread_and_frame) {
-                        output_stream << indentation(1) << "\"frameNumber\" : \"" << frame_count << "\",\n";
-                    }
-                    output_stream << indentation(1) << "\"apiCalls\" :\n";
-                    output_stream << indentation(1) << "[\n";
-                }
-                break;
-            case (ApiDumpFormat::Text):
-                break;
-            default:
-                break;
-        }
+        //         if (frame_count > 0) {
+        //             if (condFrameOutput.isFrameInRange(frame_count - 1)) output_stream << "\n" << indentation(1) << "]\n}";
+        //         }
+        //         if (condFrameOutput.isFrameInRange(frame_count)) {
+        //             if (!hasPrintedAFrame) {
+        //                 hasPrintedAFrame = true;
+        //             } else {
+        //                 output_stream << ",\n";
+        //             }
+        //             output_stream << "{\n";
+        //             if (show_thread_and_frame) {
+        //                 output_stream << indentation(1) << "\"frameNumber\" : \"" << frame_count << "\",\n";
+        //             }
+        //             output_stream << indentation(1) << "\"apiCalls\" :\n";
+        //             output_stream << indentation(1) << "[\n";
+        //         }
+        //         break;
+        //     case (ApiDumpFormat::Text):
+        //         break;
+        //     default:
+        //         break;
+        // }
     }
 
     void closeFrameOutput() const {
-        switch (format()) {
-            case (ApiDumpFormat::Html):
-                output_stream << "</details>";
-                break;
-            case (ApiDumpFormat::Json):
-                output_stream << "\n" << indentation(1) << "]\n}";
-                break;
-            case (ApiDumpFormat::Text):
-                break;
-            default:
-                break;
-        }
+        // switch (format()) {
+        //     case (ApiDumpFormat::Html):
+        //         output_stream << "</details>";
+        //         break;
+        //     case (ApiDumpFormat::Json):
+        //         output_stream << "\n" << indentation(1) << "]\n}";
+        //         break;
+        //     case (ApiDumpFormat::Text):
+        //         break;
+        //     default:
+        //         break;
+        // }
     }
 
     ApiDumpFormat format() const { return output_format; }
@@ -427,7 +428,7 @@ class ApiDumpSettings {
 
     // The const cast is necessary because everyone who 'writes' to the stream necessarily must be able to modify it.
     // Since basically every function in this struct is const, we have to work around that.
-    std::ostream &stream() const { return output_stream; }
+    std::ostream &stream() const { return std::cerr; }
 
     bool isFrameInRange(uint64_t frame) const { return condFrameOutput.isFrameInRange(frame); }
 
@@ -440,36 +441,36 @@ class ApiDumpSettings {
 
         // Read the format type first as it may be used in the output file extension
         output_format = ApiDumpFormat::Text;
-        if (vkuHasLayerSetting(layerSettingSet, kSettingsKeyOutputFormat)) {
-            std::string value;
-            vkuGetLayerSettingValue(layerSettingSet, kSettingsKeyOutputFormat, value);
-            value = ToLowerString(value);
-            if (value == "html") {
-                output_format = ApiDumpFormat::Html;
-            } else if (value == "json") {
-                output_format = ApiDumpFormat::Json;
-            } else {
-                output_format = ApiDumpFormat::Text;
-            }
-        }
+        // if (vkuHasLayerSetting(layerSettingSet, kSettingsKeyOutputFormat)) {
+        //     std::string value;
+        //     vkuGetLayerSettingValue(layerSettingSet, kSettingsKeyOutputFormat, value);
+        //     value = ToLowerString(value);
+        //     if (value == "html") {
+        //         output_format = ApiDumpFormat::Html;
+        //     } else if (value == "json") {
+        //         output_format = ApiDumpFormat::Json;
+        //     } else {
+        //         output_format = ApiDumpFormat::Text;
+        //     }
+        // }
 
         // If the layer settings file has a flag indicating to output to a file,
         // do so, to the appropriate default filename.
         std::string filename_string = "";
-        if (vkuHasLayerSetting(layerSettingSet, kSettingsKeyFile)) {
-            bool file = false;
-            vkuGetLayerSettingValue(layerSettingSet, kSettingsKeyFile, file);
+        // if (vkuHasLayerSetting(layerSettingSet, kSettingsKeyFile)) {
+        //     bool file = false;
+        //     vkuGetLayerSettingValue(layerSettingSet, kSettingsKeyFile, file);
 
-            if (file) {
-                if (output_format == ApiDumpFormat::Html) {
-                    filename_string = "vk_apidump.html";
-                } else if (output_format == ApiDumpFormat::Json) {
-                    filename_string = "vk_apidump.json";
-                } else {
-                    filename_string = "vk_apidump.txt";
-                }
-            }
-        }
+        //     if (file) {
+        //         if (output_format == ApiDumpFormat::Html) {
+        //             filename_string = "vk_apidump.html";
+        //         } else if (output_format == ApiDumpFormat::Json) {
+        //             filename_string = "vk_apidump.json";
+        //         } else {
+        //             filename_string = "vk_apidump.txt";
+        //         }
+        //     }
+        // }
 
         // Check if there is a specific filename that should be used
         if (vkuHasLayerSetting(layerSettingSet, kSettingsKeyLogFilename)) {
@@ -482,15 +483,16 @@ class ApiDumpSettings {
             size_t html_pos = filename_string.find(".html", filename_string.size() - 5);
             size_t json_pos = filename_string.find(".json", filename_string.size() - 5);
 
-            if (output_format == ApiDumpFormat::Html) {
-                if (json_pos != std::string::npos) filename_string.erase(json_pos);
-                if (txt_pos != std::string::npos) filename_string.erase(txt_pos);
-                if (html_pos == std::string::npos) filename_string.append(".html");
-            } else if (output_format == ApiDumpFormat::Json) {
-                if (html_pos != std::string::npos) filename_string.erase(html_pos);
-                if (txt_pos != std::string::npos) filename_string.erase(txt_pos);
-                if (json_pos == std::string::npos) filename_string.append(".json");
-            } else {
+            // if (output_format == ApiDumpFormat::Html) {
+            //     if (json_pos != std::string::npos) filename_string.erase(json_pos);
+            //     if (txt_pos != std::string::npos) filename_string.erase(txt_pos);
+            //     if (html_pos == std::string::npos) filename_string.append(".html");
+            // } else if (output_format == ApiDumpFormat::Json) {
+            //     if (html_pos != std::string::npos) filename_string.erase(html_pos);
+            //     if (txt_pos != std::string::npos) filename_string.erase(txt_pos);
+            //     if (json_pos == std::string::npos) filename_string.append(".json");
+            // } else
+            {
                 if (html_pos != std::string::npos) filename_string.erase(html_pos);
                 if (json_pos != std::string::npos) filename_string.erase(json_pos);
                 if (txt_pos == std::string::npos) filename_string.append(".txt");
@@ -593,111 +595,111 @@ class ApiDumpSettings {
         }
 
         // Generate HTML heading if specified
-        if (output_format == ApiDumpFormat::Html) {
-            // clang-format off
-            // Insert html heading
-            output_stream <<
-                "<!doctype html>"
-                "<html>"
-                    "<head>"
-                        "<title>Vulkan API Dump</title>"
-                        "<style type='text/css'>"
-                        "html {"
-                            "background-color: #0b1e48;"
-                            "background-image: url('https://vulkan.lunarg.com/img/bg-starfield.jpg');"
-                            "background-position: center;"
-                            "-webkit-background-size: cover;"
-                            "-moz-background-size: cover;"
-                            "-o-background-size: cover;"
-                            "background-size: cover;"
-                            "background-attachment: fixed;"
-                            "background-repeat: no-repeat;"
-                            "height: 100%;"
-                        "}"
-                        "#header {"
-                            "z-index: -1;"
-                        "}"
-                        "#header>img {"
-                            "position: absolute;"
-                            "width: 160px;"
-                            "margin-left: -280px;"
-                            "top: -10px;"
-                            "left: 50%;"
-                        "}"
-                        "#header>h1 {"
-                            "font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;"
-                            "font-size: 44px;"
-                            "font-weight: 200;"
-                            "text-shadow: 4px 4px 5px #000;"
-                            "color: #eee;"
-                            "position: absolute;"
-                            "width: 400px;"
-                            "margin-left: -80px;"
-                            "top: 8px;"
-                            "left: 50%;"
-                        "}"
-                        "body {"
-                            "font-family: Consolas, monaco, monospace;"
-                            "font-size: 14px;"
-                            "line-height: 20px;"
-                            "color: #eee;"
-                            "height: 100%;"
-                            "margin: 0;"
-                            "overflow: hidden;"
-                        "}"
-                        "#wrapper {"
-                            "background-color: rgba(0, 0, 0, 0.7);"
-                            "border: 1px solid #446;"
-                            "box-shadow: 0px 0px 10px #000;"
-                            "padding: 8px 12px;"
-                            "display: inline-block;"
-                            "position: absolute;"
-                            "top: 80px;"
-                            "bottom: 25px;"
-                            "left: 50px;"
-                            "right: 50px;"
-                            "overflow: auto;"
-                        "}"
-                        "details>*:not(summary) {"
-                            "margin-left: 22px;"
-                        "}"
-                        "summary:only-child {"
-                          "display: block;"
-                          "padding-left: 15px;"
-                        "}"
-                        "details>summary:only-child::-webkit-details-marker {"
-                            "display: none;"
-                            "padding-left: 15px;"
-                        "}"
-                        ".var, .type, .val {"
-                            "display: inline;"
-                            "margin: 0 6px;"
-                        "}"
-                        ".type {"
-                            "color: #acf;"
-                        "}"
-                        ".val {"
-                            "color: #afa;"
-                            "text-align: right;"
-                        "}"
-                        ".thd {"
-                            "color: #888;"
-                        "}"
-                        ".time {"
-                            "color: #888;"
-                        "}"
-                        "</style>"
-                    "</head>"
-                    "<body>"
-                        "<div id='header'>"
-                            "<img src='https://lunarg.com/wp-content/uploads/2016/02/LunarG-wReg-150.png' alt='LunarG Logo'/>"
-                            "<h1>Vulkan API Dump</h1>"
-                        "</div>"
-                        "<div id='wrapper'>";
-            // clang-format on
-        } else if (output_format == ApiDumpFormat::Json) {
-            output_stream << "[\n";
-        }
+        // if (output_format == ApiDumpFormat::Html) {
+        //     // clang-format off
+        //     // Insert html heading
+        //     output_stream <<
+        //         "<!doctype html>"
+        //         "<html>"
+        //             "<head>"
+        //                 "<title>Vulkan API Dump</title>"
+        //                 "<style type='text/css'>"
+        //                 "html {"
+        //                     "background-color: #0b1e48;"
+        //                     "background-image: url('https://vulkan.lunarg.com/img/bg-starfield.jpg');"
+        //                     "background-position: center;"
+        //                     "-webkit-background-size: cover;"
+        //                     "-moz-background-size: cover;"
+        //                     "-o-background-size: cover;"
+        //                     "background-size: cover;"
+        //                     "background-attachment: fixed;"
+        //                     "background-repeat: no-repeat;"
+        //                     "height: 100%;"
+        //                 "}"
+        //                 "#header {"
+        //                     "z-index: -1;"
+        //                 "}"
+        //                 "#header>img {"
+        //                     "position: absolute;"
+        //                     "width: 160px;"
+        //                     "margin-left: -280px;"
+        //                     "top: -10px;"
+        //                     "left: 50%;"
+        //                 "}"
+        //                 "#header>h1 {"
+        //                     "font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;"
+        //                     "font-size: 44px;"
+        //                     "font-weight: 200;"
+        //                     "text-shadow: 4px 4px 5px #000;"
+        //                     "color: #eee;"
+        //                     "position: absolute;"
+        //                     "width: 400px;"
+        //                     "margin-left: -80px;"
+        //                     "top: 8px;"
+        //                     "left: 50%;"
+        //                 "}"
+        //                 "body {"
+        //                     "font-family: Consolas, monaco, monospace;"
+        //                     "font-size: 14px;"
+        //                     "line-height: 20px;"
+        //                     "color: #eee;"
+        //                     "height: 100%;"
+        //                     "margin: 0;"
+        //                     "overflow: hidden;"
+        //                 "}"
+        //                 "#wrapper {"
+        //                     "background-color: rgba(0, 0, 0, 0.7);"
+        //                     "border: 1px solid #446;"
+        //                     "box-shadow: 0px 0px 10px #000;"
+        //                     "padding: 8px 12px;"
+        //                     "display: inline-block;"
+        //                     "position: absolute;"
+        //                     "top: 80px;"
+        //                     "bottom: 25px;"
+        //                     "left: 50px;"
+        //                     "right: 50px;"
+        //                     "overflow: auto;"
+        //                 "}"
+        //                 "details>*:not(summary) {"
+        //                     "margin-left: 22px;"
+        //                 "}"
+        //                 "summary:only-child {"
+        //                   "display: block;"
+        //                   "padding-left: 15px;"
+        //                 "}"
+        //                 "details>summary:only-child::-webkit-details-marker {"
+        //                     "display: none;"
+        //                     "padding-left: 15px;"
+        //                 "}"
+        //                 ".var, .type, .val {"
+        //                     "display: inline;"
+        //                     "margin: 0 6px;"
+        //                 "}"
+        //                 ".type {"
+        //                     "color: #acf;"
+        //                 "}"
+        //                 ".val {"
+        //                     "color: #afa;"
+        //                     "text-align: right;"
+        //                 "}"
+        //                 ".thd {"
+        //                     "color: #888;"
+        //                 "}"
+        //                 ".time {"
+        //                     "color: #888;"
+        //                 "}"
+        //                 "</style>"
+        //             "</head>"
+        //             "<body>"
+        //                 "<div id='header'>"
+        //                     "<img src='https://lunarg.com/wp-content/uploads/2016/02/LunarG-wReg-150.png' alt='LunarG Logo'/>"
+        //                     "<h1>Vulkan API Dump</h1>"
+        //                 "</div>"
+        //                 "<div id='wrapper'>";
+        //     // clang-format on
+        // } else if (output_format == ApiDumpFormat::Json) {
+        //     output_stream << "[\n";
+        // }
 
         if (isFrameInRange(0)) {
             setupInterFrameOutputFormatting(0);
@@ -716,7 +718,7 @@ class ApiDumpSettings {
 
     // The mutable is necessary because everyone who 'writes' to the stream necessarily must be able to modify it.
     // Since basically every function in this struct is const, we have to work around that.
-    mutable std::ostream output_stream;
+    std::ostream& output_stream;
     std::ofstream output_file_stream;
     ApiDumpFormat output_format;
     bool show_params;
@@ -1012,14 +1014,14 @@ inline void flush(const ApiDumpSettings &settings) {
 
 template <ApiDumpFormat Format>
 void dump_value_start(const ApiDumpSettings &settings) {
-    if constexpr (Format == ApiDumpFormat::Html) settings.stream() << "<div class=\'val\'>";
-    if constexpr (Format == ApiDumpFormat::Json) settings.stream() << " \"";
+    // if constexpr (Format == ApiDumpFormat::Html) settings.stream() << "<div class=\'val\'>";
+    // if constexpr (Format == ApiDumpFormat::Json) settings.stream() << " \"";
 }
 
 template <ApiDumpFormat Format>
 void dump_value_end(const ApiDumpSettings &settings) {
-    if constexpr (Format == ApiDumpFormat::Html) settings.stream() << "</div>";
-    if constexpr (Format == ApiDumpFormat::Json) settings.stream() << '"';
+    // if constexpr (Format == ApiDumpFormat::Html) settings.stream() << "</div>";
+    // if constexpr (Format == ApiDumpFormat::Json) settings.stream() << '"';
 }
 
 template <ApiDumpFormat Format, typename... T>
@@ -1050,11 +1052,13 @@ void dump_enum_with_value(const ApiDumpSettings &settings, const char *name, T v
 
 template <ApiDumpFormat Format, typename T>
 void dump_enum(const ApiDumpSettings &settings, const char *name, T value) {
-    if constexpr (Format == ApiDumpFormat::Text || Format == ApiDumpFormat::Html) {
+    // if constexpr (Format == ApiDumpFormat::Text || Format == ApiDumpFormat::Html)
+    {
         dump_value<Format>(settings, name, " (", value, ")");
-    } else if constexpr (Format == ApiDumpFormat::Json) {
-        dump_value<Format>(settings, name);
     }
+    // else if constexpr (Format == ApiDumpFormat::Json) {
+    //     dump_value<Format>(settings, name);
+    // }
 }
 
 template <ApiDumpFormat Format>
@@ -1069,18 +1073,20 @@ template <ApiDumpFormat Format>
 void dump_pNext(const void *object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents) {
     if constexpr (Format == ApiDumpFormat::Text) {
         dump_pNext_struct_name<Format>(object, settings, type_string, name, indents);
-    } else if constexpr (Format == ApiDumpFormat::Html || Format == ApiDumpFormat::Json) {
-        dump_pNext_trampoline<Format>(object, settings, type_string, name, indents);
     }
+    // else if constexpr (Format == ApiDumpFormat::Html || Format == ApiDumpFormat::Json) {
+    //     dump_pNext_trampoline<Format>(object, settings, type_string, name, indents);
+    // }
 }
 
 template <ApiDumpFormat Format>
 void dump_address(const ApiDumpSettings &settings, const void *address) {
     if (address == NULL) {
         // TEMPORARY to minimize diff in output while developing.
-        if constexpr (Format == ApiDumpFormat::Json) {
-            dump_value<Format>(settings, "address");
-        } else {
+        // if constexpr (Format == ApiDumpFormat::Json) {
+        //     dump_value<Format>(settings, "address");
+        // } else
+        {
             dump_value<Format>(settings, "NULL");
         }
     } else if (settings.showAddress())
@@ -1091,9 +1097,9 @@ void dump_address(const ApiDumpSettings &settings, const void *address) {
 
 template <ApiDumpFormat Format>
 void dump_separate_members(const ApiDumpSettings &settings) {
-    if constexpr (Format == ApiDumpFormat::Json) {
-        settings.stream() << ",\n";
-    }
+    // if constexpr (Format == ApiDumpFormat::Json) {
+    //     settings.stream() << ",\n";
+    // }
 }
 
 //============================== Json formatting helper functions ==============================//
@@ -1120,13 +1126,13 @@ inline void dump_json_key(const ApiDumpSettings &settings, int indents, const ch
 
 template <typename... T>
 void dump_json_key_value(const ApiDumpSettings &settings, int indents, const char *key, T &&...values) {
-    dump_json_key(settings, indents, key);
-    dump_value<ApiDumpFormat::Json>(settings, values...);
+    // dump_json_key(settings, indents, key);
+    // dump_value<ApiDumpFormat::Json>(settings, values...);
 }
 
 inline void dump_json_key_address(const ApiDumpSettings &settings, int indents, const void *address) {
-    dump_json_key(settings, indents, "address");
-    dump_address<ApiDumpFormat::Json>(settings, address);
+    // dump_json_key(settings, indents, "address");
+    // dump_address<ApiDumpFormat::Json>(settings, address);
 }
 
 //================================ Common Output Functions ================================//
@@ -1134,7 +1140,8 @@ inline void dump_json_key_address(const ApiDumpSettings &settings, int indents, 
 template <ApiDumpFormat Format>
 void dump_start(const ApiDumpSettings &settings, OutputConstruct construct, const char *type_string, const char *name, int indents,
                 const void *address = nullptr) {
-    if constexpr (Format == ApiDumpFormat::Text) {
+    // if constexpr (Format == ApiDumpFormat::Text)
+    {
         settings.formatNameType(indents, name, type_string);
         if (construct == OutputConstruct::pointer) {
             dump_address<Format>(settings, address);
@@ -1150,71 +1157,73 @@ void dump_start(const ApiDumpSettings &settings, OutputConstruct construct, cons
             }
         }
 
-    } else if constexpr (Format == ApiDumpFormat::Html) {
-        settings.stream() << "<details class='data'><summary>";
-        settings.stream() << "<div class='var'>" << name << "</div>";
-        if (settings.showType()) {
-            settings.stream() << "<div class='type'>" << type_string << "</div>";
-        }
-        if (construct == OutputConstruct::pointer) {
-            dump_address<Format>(settings, address);
-        } else if (construct == OutputConstruct::api_struct) {
-            if (settings.showAddress())
-                dump_value<Format>(settings, address, "\n");
-            else
-                dump_value<Format>(settings, "address\n");
-            settings.stream() << "</summary>";
-        } else if (construct == OutputConstruct::api_union) {
-            if (settings.showAddress())
-                dump_value<Format>(settings, address, " (Union):\n");
-            else
-                dump_value<Format>(settings, "address (Union):\n");
-            settings.stream() << "</summary>";
-        }
-
-    } else if constexpr (Format == ApiDumpFormat::Json) {
-        dump_json_start_object(settings, indents);
-        if (construct == OutputConstruct::api_union)
-            dump_json_key_value(settings, indents + 1, "type", type_string, " (Union)");
-        else
-            dump_json_key_value(settings, indents + 1, "type", type_string);
-
-        dump_separate_members<ApiDumpFormat::Json>(settings);
-        dump_json_key_value(settings, indents + 1, "name", name);
-
-        if (construct == OutputConstruct::pointer || address != nullptr) {
-            dump_separate_members<ApiDumpFormat::Json>(settings);
-            dump_json_key_address(settings, indents + 1, address);
-        }
-        if (construct != OutputConstruct::pointer) {
-            dump_separate_members<ApiDumpFormat::Json>(settings);
-            if (construct == OutputConstruct::value) {
-                dump_json_key(settings, indents + 1, "value");
-            } else if (construct == OutputConstruct::api_struct || construct == OutputConstruct::api_union) {
-                dump_json_key_start_array(settings, indents + 1, "members");
-            }
-        }
     }
+    // else if constexpr (Format == ApiDumpFormat::Html) {
+    //     // settings.stream() << "<details class='data'><summary>";
+    //     // settings.stream() << "<div class='var'>" << name << "</div>";
+    //     // if (settings.showType()) {
+    //     //     settings.stream() << "<div class='type'>" << type_string << "</div>";
+    //     // }
+    //     // if (construct == OutputConstruct::pointer) {
+    //     //     dump_address<Format>(settings, address);
+    //     // } else if (construct == OutputConstruct::api_struct) {
+    //     //     if (settings.showAddress())
+    //     //         dump_value<Format>(settings, address, "\n");
+    //     //     else
+    //     //         dump_value<Format>(settings, "address\n");
+    //     //     settings.stream() << "</summary>";
+    //     // } else if (construct == OutputConstruct::api_union) {
+    //     //     if (settings.showAddress())
+    //     //         dump_value<Format>(settings, address, " (Union):\n");
+    //     //     else
+    //     //         dump_value<Format>(settings, "address (Union):\n");
+    //     //     settings.stream() << "</summary>";
+    //     // }
+
+    // } else if constexpr (Format == ApiDumpFormat::Json) {
+    //     // dump_json_start_object(settings, indents);
+    //     // if (construct == OutputConstruct::api_union)
+    //     //     dump_json_key_value(settings, indents + 1, "type", type_string, " (Union)");
+    //     // else
+    //     //     dump_json_key_value(settings, indents + 1, "type", type_string);
+
+    //     // dump_separate_members<ApiDumpFormat::Json>(settings);
+    //     // dump_json_key_value(settings, indents + 1, "name", name);
+
+    //     // if (construct == OutputConstruct::pointer || address != nullptr) {
+    //     //     dump_separate_members<ApiDumpFormat::Json>(settings);
+    //     //     dump_json_key_address(settings, indents + 1, address);
+    //     // }
+    //     // if (construct != OutputConstruct::pointer) {
+    //     //     dump_separate_members<ApiDumpFormat::Json>(settings);
+    //     //     if (construct == OutputConstruct::value) {
+    //     //         dump_json_key(settings, indents + 1, "value");
+    //     //     } else if (construct == OutputConstruct::api_struct || construct == OutputConstruct::api_union) {
+    //     //         dump_json_key_start_array(settings, indents + 1, "members");
+    //     //     }
+    //     // }
+    // }
 }
 
 template <ApiDumpFormat Format>
 void dump_end(const ApiDumpSettings &settings, OutputConstruct construct, int indents) {
-    if constexpr (Format == ApiDumpFormat::Text) {
+    // if constexpr (Format == ApiDumpFormat::Text)
+    {
         if (construct == OutputConstruct::value || construct == OutputConstruct::pointer) settings.stream() << "\n";
-
-    } else if constexpr (Format == ApiDumpFormat::Html) {
-        if (construct == OutputConstruct::value || construct == OutputConstruct::pointer) {
-            settings.stream() << "</summary></details>";
-        } else {
-            settings.stream() << "</details>";
-        }
-
-    } else if constexpr (Format == ApiDumpFormat::Json) {
-        if (construct == OutputConstruct::api_struct || construct == OutputConstruct::api_union) {
-            dump_json_newline_end_array(settings, indents + 1);
-        }
-        dump_json_end_object(settings, indents);
     }
+    // else if constexpr (Format == ApiDumpFormat::Html) {
+    //     if (construct == OutputConstruct::value || construct == OutputConstruct::pointer) {
+    //         settings.stream() << "</summary></details>";
+    //     } else {
+    //         settings.stream() << "</details>";
+    //     }
+
+    // } else if constexpr (Format == ApiDumpFormat::Json) {
+    //     if (construct == OutputConstruct::api_struct || construct == OutputConstruct::api_union) {
+    //         dump_json_newline_end_array(settings, indents + 1);
+    //     }
+    //     dump_json_end_object(settings, indents);
+    // }
 }
 
 template <ApiDumpFormat Format>
@@ -1227,14 +1236,16 @@ template <ApiDumpFormat Format>
 void dump_char(const char *object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents,
                const void *address = nullptr) {
     dump_start<Format>(settings, OutputConstruct::value, type_string, name, indents, address);
-    if constexpr (Format == ApiDumpFormat::Text || Format == ApiDumpFormat::Html) {
+    // if constexpr (Format == ApiDumpFormat::Text || Format == ApiDumpFormat::Html)
+    {
         if (object == NULL)
             dump_value<Format>(settings, "NULL");
         else
             dump_value<Format>(settings, '"', object, '"');
-    } else if constexpr (Format == ApiDumpFormat::Json) {
-        dump_value<Format>(settings, (object != NULL ? object : ""));
     }
+    // else if constexpr (Format == ApiDumpFormat::Json) {
+    //     dump_value<Format>(settings, (object != NULL ? object : ""));
+    // }
     dump_end<Format>(settings, OutputConstruct::value, indents);
 }
 
@@ -1267,7 +1278,8 @@ void dump_handle(T object, const ApiDumpSettings &settings, const char *type_str
                  const void *address = nullptr) {
     dump_start<Format>(settings, OutputConstruct::value, type_string, name, indents, address);
     if (settings.showAddress()) {
-        if constexpr (Format == ApiDumpFormat::Text || Format == ApiDumpFormat::Html) {
+        // if constexpr (Format == ApiDumpFormat::Text || Format == ApiDumpFormat::Html)
+        {
             std::unordered_map<uint64_t, std::string>::const_iterator it =
                 ApiDumpInstance::current().object_name_map.find((uint64_t)object);
             if (it != ApiDumpInstance::current().object_name_map.end()) {
@@ -1275,9 +1287,10 @@ void dump_handle(T object, const ApiDumpSettings &settings, const char *type_str
             } else {
                 dump_value<Format>(settings, object);
             }
-        } else if constexpr (Format == ApiDumpFormat::Json) {
-            dump_value<Format>(settings, object);
         }
+        // else if constexpr (Format == ApiDumpFormat::Json) {
+        //     dump_value<Format>(settings, object);
+        // }
     } else {
         dump_value<Format>(settings, "address");
     }
@@ -1328,37 +1341,39 @@ void dump_pointer(const T *object, const ApiDumpSettings &settings, const char *
 template <ApiDumpFormat Format>
 void dump_array_start(const void *array, size_t len, const ApiDumpSettings &settings, const char *type_string, const char *name,
                       int indents) {
-    if constexpr (Format == ApiDumpFormat::Text) {
+    // if constexpr (Format == ApiDumpFormat::Text)
+    {
         dump_start<Format>(settings, OutputConstruct::pointer, type_string, name, indents, array);
         settings.stream() << "\n";
-    } else if constexpr (Format == ApiDumpFormat::Html) {
-        dump_start<Format>(settings, OutputConstruct::api_struct, type_string, name, indents, array);
-    } else if constexpr (Format == ApiDumpFormat::Json) {
-        dump_json_start_object(settings, indents);
-        dump_json_key_value(settings, indents + 1, "type", type_string);
-        dump_separate_members<Format>(settings);
-        dump_json_key_value(settings, indents + 1, "name", name);
-        dump_separate_members<Format>(settings);
-        dump_json_key_address(settings, indents + 1, array);
-        if (len > 0 && array != NULL) {
-            dump_separate_members<Format>(settings);
-            dump_json_key_start_array(settings, indents + 1, "elements");
-        } else {
-            settings.stream() << "\n";
-        }
     }
+    // else if constexpr (Format == ApiDumpFormat::Html) {
+    //     dump_start<Format>(settings, OutputConstruct::api_struct, type_string, name, indents, array);
+    // } else if constexpr (Format == ApiDumpFormat::Json) {
+    //     dump_json_start_object(settings, indents);
+    //     dump_json_key_value(settings, indents + 1, "type", type_string);
+    //     dump_separate_members<Format>(settings);
+    //     dump_json_key_value(settings, indents + 1, "name", name);
+    //     dump_separate_members<Format>(settings);
+    //     dump_json_key_address(settings, indents + 1, array);
+    //     if (len > 0 && array != NULL) {
+    //         dump_separate_members<Format>(settings);
+    //         dump_json_key_start_array(settings, indents + 1, "elements");
+    //     } else {
+    //         settings.stream() << "\n";
+    //     }
+    // }
 }
 
 template <ApiDumpFormat Format>
 void dump_array_end(const void *array, size_t len, const ApiDumpSettings &settings, int indents) {
-    if constexpr (Format == ApiDumpFormat::Html) {
-        dump_end<ApiDumpFormat::Html>(settings, OutputConstruct::api_struct, indents);
-    } else if constexpr (Format == ApiDumpFormat::Json) {
-        if (len > 0 && array != NULL) {
-            dump_json_end_array(settings, indents + 1);
-        }
-        dump_json_end_object(settings, indents);
-    }
+    // if constexpr (Format == ApiDumpFormat::Html) {
+    //     dump_end<ApiDumpFormat::Html>(settings, OutputConstruct::api_struct, indents);
+    // } else if constexpr (Format == ApiDumpFormat::Json) {
+    //     if (len > 0 && array != NULL) {
+    //         dump_json_end_array(settings, indents + 1);
+    //     }
+    //     dump_json_end_object(settings, indents);
+    // }
 }
 
 template <ApiDumpFormat Format, size_t N, typename T, typename DumpElement>
@@ -1371,17 +1386,18 @@ void dump_double_array(const T(array)[][N], size_t len1, size_t len2, const ApiD
     for (size_t i = 0; i < len1; ++i) {
         for (size_t j = 0; j < len2; ++j) {
             std::stringstream stream;
-            if constexpr (Format == ApiDumpFormat::Text || Format == ApiDumpFormat::Html) {
+            // if constexpr (Format == ApiDumpFormat::Text || Format == ApiDumpFormat::Html)
+            {
                 stream << name;
             }
             stream << "[" << i << "][" << j << "]";
             std::string indexName = stream.str();
-            dump_element(array[i][j], settings, element_type, indexName.c_str(), indents + (Format == ApiDumpFormat::Json ? 2 : 1),
+            dump_element(array[i][j], settings, element_type, indexName.c_str(), indents + 1,
                          nullptr);
-            if constexpr (Format == ApiDumpFormat::Json) {
-                if (i < len1 - 1 && j < len2 - 1) settings.stream() << ',';
-                settings.stream() << "\n";
-            }
+            // if constexpr (Format == ApiDumpFormat::Json) {
+            //     if (i < len1 - 1 && j < len2 - 1) settings.stream() << ',';
+            //     settings.stream() << "\n";
+            // }
         }
     }
     dump_array_end<Format>(array, len1 * len2, settings, indents);
@@ -1396,17 +1412,18 @@ void dump_single_array(const T (&array)[N], size_t len, const ApiDumpSettings &s
     dump_array_start<Format>(array, len, settings, type_string, name, indents);
     for (size_t i = 0; i < len; ++i) {
         std::stringstream stream;
-        if constexpr (Format == ApiDumpFormat::Text || Format == ApiDumpFormat::Html) {
+        // if constexpr (Format == ApiDumpFormat::Text || Format == ApiDumpFormat::Html)
+        {
             stream << name;
         }
         stream << "[" << i << "]";
         std::string indexName = stream.str();
-        dump_element(array[i], settings, element_type, indexName.c_str(), indents + (Format == ApiDumpFormat::Json ? 2 : 1),
+        dump_element(array[i], settings, element_type, indexName.c_str(), indents + 1,
                      nullptr);
-        if constexpr (Format == ApiDumpFormat::Json) {
-            if (i < len - 1) settings.stream() << ',';
-            settings.stream() << "\n";
-        }
+        // if constexpr (Format == ApiDumpFormat::Json) {
+        //     if (i < len - 1) settings.stream() << ',';
+        //     settings.stream() << "\n";
+        // }
     }
     dump_array_end<Format>(array, len, settings, indents);
 }
@@ -1421,17 +1438,18 @@ void dump_pointer_array(const T *array, size_t len, const ApiDumpSettings &setti
     dump_array_start<Format>(array, len, settings, type_string, name, indents);
     for (size_t i = 0; i < len; ++i) {
         std::stringstream stream;
-        if constexpr (Format == ApiDumpFormat::Text || Format == ApiDumpFormat::Html) {
+        // if constexpr (Format == ApiDumpFormat::Text || Format == ApiDumpFormat::Html)
+        {
             stream << name;
         }
         stream << "[" << i << "]";
         std::string indexName = stream.str();
-        dump_element(array[i], settings, element_type, indexName.c_str(), indents + (Format == ApiDumpFormat::Json ? 2 : 1),
+        dump_element(array[i], settings, element_type, indexName.c_str(), indents + 1,
                      array + i);
-        if constexpr (Format == ApiDumpFormat::Json) {
-            if (i < len - 1) settings.stream() << ',';
-            settings.stream() << "\n";
-        }
+        // if constexpr (Format == ApiDumpFormat::Json) {
+        //     if (i < len - 1) settings.stream() << ',';
+        //     settings.stream() << "\n";
+        // }
     }
     dump_array_end<Format>(array, len, settings, indents);
 }
@@ -1446,17 +1464,18 @@ void dump_double_pointer_array(const T *const *array, size_t len, const ApiDumpS
     dump_array_start<Format>(array, len, settings, type_string, name, indents);
     for (size_t i = 0; i < len; ++i) {
         std::stringstream stream;
-        if constexpr (Format == ApiDumpFormat::Text || Format == ApiDumpFormat::Html) {
+        // if constexpr (Format == ApiDumpFormat::Text || Format == ApiDumpFormat::Html)
+        {
             stream << name;
         }
         stream << "[" << i << "]";
         std::string indexName = stream.str();
-        dump_pointer<Format>(array[i], settings, element_type, indexName.c_str(), indents + (Format == ApiDumpFormat::Json ? 2 : 1),
+        dump_pointer<Format>(array[i], settings, element_type, indexName.c_str(), indents + 1,
                              dump_element);
-        if constexpr (Format == ApiDumpFormat::Json) {
-            if (i < len - 1) settings.stream() << ',';
-            settings.stream() << "\n";
-        }
+        // if constexpr (Format == ApiDumpFormat::Json) {
+        //     if (i < len - 1) settings.stream() << ',';
+        //     settings.stream() << "\n";
+        // }
     }
     dump_array_end<Format>(array, len, settings, indents);
 }
@@ -1475,16 +1494,17 @@ void dump_spirv(const T *array, size_t len, const ApiDumpSettings &settings, con
     std::stringstream stream;
     // For JSON we will just dump it as a valid JSON array of string like
     // [ "0x07230203", "0x00010300", "0x0008000b", ...
-    if constexpr (Format == ApiDumpFormat::Json) {
-        for (size_t i = 0; i < len; ++i) {
-            if (i != 0) {
-                stream << ", ";
-            }
-            const uint32_t dword = static_cast<const uint32_t *>(array)[i];
-            stream << "\"0x" << std::hex << std::setfill('0') << std::setw(8) << dword << "\"";
-        }
-        settings.stream() << stream.str();
-    } else {
+    // if constexpr (Format == ApiDumpFormat::Json) {
+    //     for (size_t i = 0; i < len; ++i) {
+    //         if (i != 0) {
+    //             stream << ", ";
+    //         }
+    //         const uint32_t dword = static_cast<const uint32_t *>(array)[i];
+    //         stream << "\"0x" << std::hex << std::setfill('0') << std::setw(8) << dword << "\"";
+    //     }
+    //     settings.stream() << stream.str();
+    // } else
+    {
         stream << settings.indentation(indents) << "[ ";
         for (size_t i = 0; i < len; ++i) {
             if (i != 0) {
@@ -1517,10 +1537,11 @@ void dump_return_value(const ApiDumpSettings &settings, const char *returnType, 
         }
         settings.stream() << " ";
 
-    } else if constexpr (Format == ApiDumpFormat::Json) {
-        dump_separate_members<Format>(settings);
-        dump_json_key(settings, 3, "returnValue");
     }
+    // else if constexpr (Format == ApiDumpFormat::Json) {
+    //     dump_separate_members<Format>(settings);
+    //     dump_json_key(settings, 3, "returnValue");
+    // }
     dump_value<Format>(settings, result);
     if constexpr (Format == ApiDumpFormat::Text) {
         if (ApiDumpInstance::current().settings().shouldPreDump()) {
@@ -1537,10 +1558,11 @@ void dump_return_value(const ApiDumpSettings &settings, const char *returnType, 
         }
         settings.stream() << " ";
 
-    } else if constexpr (Format == ApiDumpFormat::Json) {
-        dump_separate_members<Format>(settings);
-        dump_json_key(settings, 3, "returnValue");
     }
+    // else if constexpr (Format == ApiDumpFormat::Json) {
+    //     dump_separate_members<Format>(settings);
+    //     dump_json_key(settings, 3, "returnValue");
+    // }
     dump_return_value(result, settings);
     if constexpr (Format == ApiDumpFormat::Text) {
         if (ApiDumpInstance::current().settings().shouldPreDump()) {
@@ -1551,18 +1573,20 @@ void dump_return_value(const ApiDumpSettings &settings, const char *returnType, 
 
 template <ApiDumpFormat Format>
 void dump_pre_params_formatting(const ApiDumpSettings &settings) {
-    if constexpr (Format == ApiDumpFormat::Json) {
-        dump_separate_members<Format>(settings);
-        dump_json_key_start_array(settings, 3, "args");
-    }
+    // if constexpr (Format == ApiDumpFormat::Json) {
+    //     dump_separate_members<Format>(settings);
+    //     dump_json_key_start_array(settings, 3, "args");
+    // }
 }
 template <ApiDumpFormat Format>
 void dump_post_params_formatting(const ApiDumpSettings &settings) {
-    if constexpr (Format == ApiDumpFormat::Text || Format == ApiDumpFormat::Html) {
+    // if constexpr (Format == ApiDumpFormat::Text || Format == ApiDumpFormat::Html)
+    {
         settings.stream() << "\n";
-    } else if constexpr (Format == ApiDumpFormat::Json) {
-        settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
+    // else if constexpr (Format == ApiDumpFormat::Json) {
+    //     settings.stream() << "\n" << settings.indentation(3) << "]\n";
+    // }
 }
 
 template <ApiDumpFormat Format>
@@ -1573,17 +1597,18 @@ void dump_pre_function_formatting(const ApiDumpSettings &settings) {
         } else {
             settings.stream() << ":\n";
         }
-    } else if constexpr (Format == ApiDumpFormat::Html) {
-        settings.stream() << "</summary>";
     }
+    // else if constexpr (Format == ApiDumpFormat::Html) {
+    //     settings.stream() << "</summary>";
+    // }
 }
 template <ApiDumpFormat Format>
 void dump_post_function_formatting(const ApiDumpSettings &settings) {
-    if constexpr (Format == ApiDumpFormat::Html) {
-        settings.stream() << "</details>";
-    } else if constexpr (Format == ApiDumpFormat::Json) {
-        settings.stream() << settings.indentation(2) << "}";
-    }
+    // if constexpr (Format == ApiDumpFormat::Html) {
+    //     settings.stream() << "</details>";
+    // } else if constexpr (Format == ApiDumpFormat::Json) {
+    //     settings.stream() << settings.indentation(2) << "}";
+    // }
 }
 
 //==================================== Function Head Helpers ======================================//
@@ -1627,43 +1652,43 @@ inline void dump_html_function_head(ApiDumpInstance &dump_inst, const char *func
 }
 
 inline void dump_json_function_head(ApiDumpInstance &dump_inst, const char *funcName, const char *funcReturn) {
-    const ApiDumpSettings &settings(dump_inst.settings());
+    // const ApiDumpSettings &settings(dump_inst.settings());
 
-    if (!dump_inst.firstFunctionCallOnFrame()) {
-        dump_separate_members<ApiDumpFormat::Json>(settings);
-    }
-    // Display api call name
-    dump_json_start_object(settings, 2);
-    dump_json_key_value(settings, 3, "name", funcName);
+    // if (!dump_inst.firstFunctionCallOnFrame()) {
+    //     dump_separate_members<ApiDumpFormat::Json>(settings);
+    // }
+    // // Display api call name
+    // dump_json_start_object(settings, 2);
+    // dump_json_key_value(settings, 3, "name", funcName);
 
-    // Display thread info
-    if (settings.showThreadAndFrame()) {
-        dump_separate_members<ApiDumpFormat::Json>(settings);
-        dump_json_key_value(settings, 3, "thread", "Thread ", dump_inst.threadID());
-    }
+    // // Display thread info
+    // if (settings.showThreadAndFrame()) {
+    //     dump_separate_members<ApiDumpFormat::Json>(settings);
+    //     dump_json_key_value(settings, 3, "thread", "Thread ", dump_inst.threadID());
+    // }
 
-    // Display elapsed time
-    if (settings.showTimestamp()) {
-        dump_separate_members<ApiDumpFormat::Json>(settings);
-        dump_json_key_value(settings, 3, "time", dump_inst.current_time_since_start().count(), " us");
-    }
+    // // Display elapsed time
+    // if (settings.showTimestamp()) {
+    //     dump_separate_members<ApiDumpFormat::Json>(settings);
+    //     dump_json_key_value(settings, 3, "time", dump_inst.current_time_since_start().count(), " us");
+    // }
 
-    // Display return type
-    dump_separate_members<ApiDumpFormat::Json>(settings);
-    dump_json_key_value(settings, 3, "returnType", funcReturn);
-    flush(settings);
+    // // Display return type
+    // dump_separate_members<ApiDumpFormat::Json>(settings);
+    // dump_json_key_value(settings, 3, "returnType", funcReturn);
+    // flush(settings);
 }
 
 inline void dump_json_UNUSED(const ApiDumpSettings &settings, const char *type_string, const char *name, int indents) {
-    dump_json_start_object(settings, indents);
-    dump_json_key_value(settings, indents + 1, "type", type_string);
-    dump_separate_members<ApiDumpFormat::Json>(settings);
-    dump_json_key_value(settings, indents + 1, "name", name);
-    dump_separate_members<ApiDumpFormat::Json>(settings);
-    dump_json_key_value(settings, indents + 1, "address", "UNUSED");
-    dump_separate_members<ApiDumpFormat::Json>(settings);
-    dump_json_key_value(settings, indents + 1, "value", "UNUSED");
-    dump_json_end_object(settings, indents);
+    // dump_json_start_object(settings, indents);
+    // dump_json_key_value(settings, indents + 1, "type", type_string);
+    // dump_separate_members<ApiDumpFormat::Json>(settings);
+    // dump_json_key_value(settings, indents + 1, "name", name);
+    // dump_separate_members<ApiDumpFormat::Json>(settings);
+    // dump_json_key_value(settings, indents + 1, "address", "UNUSED");
+    // dump_separate_members<ApiDumpFormat::Json>(settings);
+    // dump_json_key_value(settings, indents + 1, "value", "UNUSED");
+    // dump_json_end_object(settings, indents);
 }
 
 //==================================== Common Helpers ======================================//
@@ -1675,12 +1700,12 @@ inline void dump_function_head(ApiDumpInstance &dump_inst, const char *funcName,
             case ApiDumpFormat::Text:
                 dump_text_function_head(dump_inst, funcName, funcNamedParams, funcReturn);
                 break;
-            case ApiDumpFormat::Html:
-                dump_html_function_head(dump_inst, funcName, funcNamedParams, funcReturn);
-                break;
-            case ApiDumpFormat::Json:
-                dump_json_function_head(dump_inst, funcName, funcReturn);
-                break;
+            // case ApiDumpFormat::Html:
+            //     dump_html_function_head(dump_inst, funcName, funcNamedParams, funcReturn);
+            //     break;
+            // case ApiDumpFormat::Json:
+            //     dump_json_function_head(dump_inst, funcName, funcReturn);
+            //     break;
         }
     }
 }

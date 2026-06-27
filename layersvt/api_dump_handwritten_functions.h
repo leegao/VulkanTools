@@ -79,20 +79,20 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateInstance(const VkInstanceCreateInfo* pCre
                 dump_params_vkCreateInstance<ApiDumpFormat::Text>(ApiDumpInstance::current(), pCreateInfo, pAllocator, pInstance);
                 dump_post_function_formatting<ApiDumpFormat::Text>(ApiDumpInstance::current().settings());
                 break;
-            case ApiDumpFormat::Html:
-                dump_return_value<ApiDumpFormat::Html>(ApiDumpInstance::current().settings(), "VkResult", result,
-                                                       dump_return_value_VkResult<ApiDumpFormat::Html>);
-                dump_pre_function_formatting<ApiDumpFormat::Html>(ApiDumpInstance::current().settings());
-                dump_params_vkCreateInstance<ApiDumpFormat::Html>(ApiDumpInstance::current(), pCreateInfo, pAllocator, pInstance);
-                dump_post_function_formatting<ApiDumpFormat::Html>(ApiDumpInstance::current().settings());
-                break;
-            case ApiDumpFormat::Json:
-                dump_return_value<ApiDumpFormat::Json>(ApiDumpInstance::current().settings(), "VkResult", result,
-                                                       dump_return_value_VkResult<ApiDumpFormat::Json>);
-                dump_pre_function_formatting<ApiDumpFormat::Json>(ApiDumpInstance::current().settings());
-                dump_params_vkCreateInstance<ApiDumpFormat::Json>(ApiDumpInstance::current(), pCreateInfo, pAllocator, pInstance);
-                dump_post_function_formatting<ApiDumpFormat::Json>(ApiDumpInstance::current().settings());
-                break;
+            // case ApiDumpFormat::Html:
+            //     dump_return_value<ApiDumpFormat::Html>(ApiDumpInstance::current().settings(), "VkResult", result,
+            //                                            dump_return_value_VkResult<ApiDumpFormat::Html>);
+            //     dump_pre_function_formatting<ApiDumpFormat::Html>(ApiDumpInstance::current().settings());
+            //     dump_params_vkCreateInstance<ApiDumpFormat::Html>(ApiDumpInstance::current(), pCreateInfo, pAllocator, pInstance);
+            //     dump_post_function_formatting<ApiDumpFormat::Html>(ApiDumpInstance::current().settings());
+            //     break;
+            // case ApiDumpFormat::Json:
+            //     dump_return_value<ApiDumpFormat::Json>(ApiDumpInstance::current().settings(), "VkResult", result,
+            //                                            dump_return_value_VkResult<ApiDumpFormat::Json>);
+            //     dump_pre_function_formatting<ApiDumpFormat::Json>(ApiDumpInstance::current().settings());
+            //     dump_params_vkCreateInstance<ApiDumpFormat::Json>(ApiDumpInstance::current(), pCreateInfo, pAllocator, pInstance);
+            //     dump_post_function_formatting<ApiDumpFormat::Json>(ApiDumpInstance::current().settings());
+            //     break;
         }
         flush(ApiDumpInstance::current().settings());
     }
@@ -104,6 +104,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateInstance(const VkInstanceCreateInfo* pCre
 template <ApiDumpFormat Format>
 VKAPI_ATTR VkResult VKAPI_CALL vkCreateDevice(VkPhysicalDevice physicalDevice, const VkDeviceCreateInfo* pCreateInfo,
                                               const VkAllocationCallbacks* pAllocator, VkDevice* pDevice) {
+    std::cerr << "vkCreateDevice" << std::endl;
     std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
     dump_function_head(ApiDumpInstance::current(), "vkCreateDevice", "physicalDevice, pCreateInfo, pAllocator, pDevice",
                        "VkResult");

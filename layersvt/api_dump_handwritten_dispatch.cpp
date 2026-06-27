@@ -35,12 +35,12 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetInstanceProcAddr(V
         case ApiDumpFormat::Text:
             instance_func = api_dump_known_instance_functions<ApiDumpFormat::Text>(instance, pName);
             break;
-        case ApiDumpFormat::Html:
-            instance_func = api_dump_known_instance_functions<ApiDumpFormat::Html>(instance, pName);
-            break;
-        case ApiDumpFormat::Json:
-            instance_func = api_dump_known_instance_functions<ApiDumpFormat::Json>(instance, pName);
-            break;
+        // case ApiDumpFormat::Html:
+        //     instance_func = api_dump_known_instance_functions<ApiDumpFormat::Html>(instance, pName);
+        //     break;
+        // case ApiDumpFormat::Json:
+        //     instance_func = api_dump_known_instance_functions<ApiDumpFormat::Json>(instance, pName);
+        //     break;
     }
     if (instance_func) return instance_func;
     PFN_vkVoidFunction device_func = nullptr;
@@ -49,12 +49,12 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetInstanceProcAddr(V
         case ApiDumpFormat::Text:
             device_func = api_dump_known_device_functions<ApiDumpFormat::Text>(NULL, pName);
             break;
-        case ApiDumpFormat::Html:
-            device_func = api_dump_known_device_functions<ApiDumpFormat::Html>(NULL, pName);
-            break;
-        case ApiDumpFormat::Json:
-            device_func = api_dump_known_device_functions<ApiDumpFormat::Json>(NULL, pName);
-            break;
+        // case ApiDumpFormat::Html:
+        //     device_func = api_dump_known_device_functions<ApiDumpFormat::Html>(NULL, pName);
+        //     break;
+        // case ApiDumpFormat::Json:
+        //     device_func = api_dump_known_device_functions<ApiDumpFormat::Json>(NULL, pName);
+        //     break;
     }
     // Make sure that device functions queried through GIPA works
     if (device_func) return device_func;
@@ -70,12 +70,12 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
         case ApiDumpFormat::Text:
             device_func = api_dump_known_device_functions<ApiDumpFormat::Text>(device, pName);
             break;
-        case ApiDumpFormat::Html:
-            device_func = api_dump_known_device_functions<ApiDumpFormat::Html>(device, pName);
-            break;
-        case ApiDumpFormat::Json:
-            device_func = api_dump_known_device_functions<ApiDumpFormat::Json>(device, pName);
-            break;
+        // case ApiDumpFormat::Html:
+        //     device_func = api_dump_known_device_functions<ApiDumpFormat::Html>(device, pName);
+        //     break;
+        // case ApiDumpFormat::Json:
+        //     device_func = api_dump_known_device_functions<ApiDumpFormat::Json>(device, pName);
+        //     break;
     }
     if (device_func) return device_func;
 

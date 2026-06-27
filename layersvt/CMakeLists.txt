@@ -84,6 +84,11 @@ if(BUILD_APIDUMP)
     endif()
 
     target_compile_definitions(VkLayer_api_dump PRIVATE VK_ENABLE_BETA_EXTENSIONS)
+    target_compile_options(VkLayer_api_dump PRIVATE -ftime-trace)
+    # set_source_files_properties(
+    #     "${PROJECT_SOURCE_DIR}/layersvt/api_dump_handwritten_dispatch.cpp"
+    #     PROPERTIES COMPILE_OPTIONS "-O0"
+    # )
 
     if (VT_CODEGEN)
         add_dependencies(VkLayer_api_dump vt_codegen_as_needed)
