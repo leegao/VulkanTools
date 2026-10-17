@@ -27,6 +27,37 @@ permissions:
   contents: read
 
 jobs:
+  android:
+    runs-on: ubuntu-latest
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: lukka/get-cmake@latest
+
+      - name: Configure
+        run: |
+            cmake -S . -B build/ --toolchain $ANDROID_NDK_LATEST_HOME/build/cmake/android.toolchain.cmake \
+            -D ANDROID_PLATFORM=29 \
+            -D CMAKE_ANDROID_ARCH_ABI=arm64-v8a \
+            -D CMAKE_ANDROID_STL_TYPE=c++_static \
+            -D ANDROID_USE_LEGACY_TOOLCHAIN_FILE=NO \
+            -D CMAKE_BUILD_TYPE=Release \
+            -D UPDATE_DEPS=ON \
+            -G "Ninja"
+
+      - name: Build
+        run: cmake --build build
+
+      - name: Install
+        run: cmake --install build --prefix build/install
+
+      - name: Upload Built Binaries
+        uses: actions/upload-artifact@v4
+        with:
+            name: android-binaries
+            path: build/install/
+
   build-aarch64-linux:
     runs-on: ubuntu-24.04-arm
     name: "Linux aarch64 (glibc, Release)"
@@ -53,6 +84,10 @@ jobs:
           path: ${{ github.workspace }}/external
           key: linux-aarch64-api-dump-deps-release-${{ hashFiles('scripts/known_good.json') }}
 
+      - name: Remove Clang-specific build flags
+        run: |
+          grep -rl --exclude-dir=.git "ftime-trace" . | xargs -r sed -i 's/-ftime-trace//g'
+  
       - name: Configure CMake
         run: |
           cmake -S . -B build \
